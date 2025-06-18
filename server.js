@@ -17,10 +17,14 @@ database.connect();
 app.use(express.json());
 app.use(
         cors({
-                origin:"http://localhost:5173",
+                origin:"*",
                 credentials:true,//HW explore, its flag
         })
 )
+app.use((req, res, next) => {
+  console.log("req came:", req.method, req.url);
+  next();
+});
 
 
 //routes
