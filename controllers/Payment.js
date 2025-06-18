@@ -1,104 +1,153 @@
-const {instance}= require("../config/razorpay");
+const { instance } = require("../config/razorpay");
 const { default: mongoose } = require("mongoose");
-const Payment=require('../models/Payment')
+const Payment = require('../models/Payment')
 const crypto = require("crypto");
 
 //capture the payment and initiate the razorpay order
-exports.capturePayment=async(req,res)=>{
-    try{
+exports.capturePayment = async (req, res) => {
+    try {
         //get courseId and userId
-        const {phoneNu, name, amount : price}=req.body;        
-       
+        const { phoneNu, name, amount: price } = req.body;
+
         //order create
-        const amount=parseFloat(price);
-        const currency='INR';
-        const options={
-            amount:amount*100,
-            currency:currency,
+        const amount = parseFloat(price);
+        const currency = 'INR';
+        const options = {
+            amount: amount * 100,
+            currency: currency,
             receipt: `order_${name}_${Date.now()}`,
-            notes:{
+            notes: {
                 phoneNu,
                 name
             }
         };
-        try{
+        try {
             //initiate the payment using razorpay
-            const paymentResponse=await instance.orders.create(options);
+            const paymentResponse = await instance.orders.create(options);
             console.log(paymentResponse);
             return res.status(200).json({
-                success:true,
+                success: true,
                 orderId: paymentResponse.id,
-                currency:paymentResponse.currency,
-                amount:paymentResponse.amount,
+                currency: paymentResponse.currency,
+                amount: paymentResponse.amount,
             });
-        }catch(err){
-            console.log("From cpature-payment error:",err);
+        } catch (err) {
+            console.log("From cpature-payment error:", err);
             return res.json({
-                success:false,
-                message:"could not initiate order"
+                success: false,
+                message: "could not initiate order"
             });
         }
         //return re
         return res.status(200).json({
-            success:true,
-            
+            success: true,
+
         })
-    }catch(err){
+    } catch (err) {
         return res.json({
-            success:false,
-            message:"Please provide valid course ID"
+            success: false,
+            message: "Please provide valid course ID"
         });
     }
 }
 
 //verifySignature of Razorpay and server
-exports.verifySignature=async(req,res)=>{
-    try{
-        const webhookSecrete="12345";
-        
-        const signature=req.headers['x-razorpay-signature'];
-        const shasum=crypto.createHmac("sha256",webhookSecrete);
+exports.verifySignature = async (req, res) => {
+    try {
+        const webhookSecrete = "12345";
+
+        const signature = req.headers['x-razorpay-signature'];
+        const shasum = crypto.createHmac("sha256", webhookSecrete);
         shasum.update(JSON.stringify(req.body));
-        const digest=shasum.digest("hex");
-        if(signature===digest){
+        const digest = shasum.digest("hex");
+        if (signature === digest) {
             console.log("payment is Authorised!");
 
-            const payment=req.body.payload.payment.entity;
+            const payment = req.body.payload.payment.entity;
             console.log("payment: ", payment)
-            try{
+
+            const statusEntry = {
+                status: payment.status,
+                at: new Date(payment.created_at * 1000)
+            };
+
+            const paymentDetails = {
+                upi: payment.vpa,
+                bank: payment.bank,
+                wallet: payment.wallet,
+                card_id: payment.card_id,
+                ...payment.upi,
+                ...payment.acquirer_data
+            };
+
+            const updatedData = {
+                razorpay_payment_id: payment.id,
+                razorpay_order_id: payment.order_id,
+                razorpay_signature: req.body.signature, // if included
+
+                name: payment.notes?.name,
+                phone: payment.notes?.phoneNu,
+                email: payment.email,
+                contact: payment.contact,
+                service:payment.description,
+
+                method: payment.method,
+                payment_details: paymentDetails,
+
+                amount: payment.amount,
+                base_amount: payment.base_amount,
+                currency: payment.currency,
+                fee: payment.fee,
+                tax: payment.tax,
+
+                description: payment.description,
+                captured: payment.captured,
+                international: payment.international,
+                reward: payment.reward,
+                acquirer_data: payment.acquirer_data,
+
+                error_code: payment.error_code,
+                error_description: payment.error_description,
+                error_reason: payment.error_reason,
+
+                finalStatus: payment.status,
+                $push: { status_history: statusEntry }
+            };
+
+
+
+            try {
                 //fullfill the action
-                await Payment.create({
-                    name: payment.notes?.name || "N/A",
-                    phone: payment.notes?.phoneNu || "N/A",
-                    razorpay_payment_id: payment.id,
-                    razorpay_order_id: payment.order_id,
-                    razorpay_signature: signature,
-                    status: "success",
-                });
+                const saved = await Payment.findOneAndUpdate(
+                    { razorpay_payment_id: payment.id },
+                    { $set: updatedData, $setOnInsert: { createdAt: new Date() } },
+                    { upsert: true, new: true }
+                );
 
                 return res.status(200).json({
-                    success:true,
-                    message:"Signature verified and course added!"
+                    success: true,
+                    message: "Signature verified and course added!",
+                    data:saved
                 });
-            }catch(err){
+            } catch (err) {
                 console.log("error from verify payment inner tyr: ", err)
                 return res.status(500).json({
-                    success:false,
-                    message:"server error!"
+                    success: false,
+                    message: "server error!"
                 });
             }
-        }else{
+        } else {
             return res.status(400).json({
-                success:false,
-                message:"Invalid request!"
+                success: false,
+                message: "Invalid request!"
             });
         }
 
-    }catch(err){ 
+    } catch (err) {
         console.log("error from verify payment outer tyr: ", err)
         return res.status(500).json({
-            success:false,
-            message:"Server Error!"
+            success: false,
+            message: "Server Error!"
         });
     }
 }
