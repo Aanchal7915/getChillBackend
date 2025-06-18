@@ -62,6 +62,7 @@ exports.verifySignature=async(req,res)=>{
             console.log("payment is Authorised!");
 
             const payment=req.body.payload.payment.entity;
+            console.log("payment: ", payment)
             try{
                 //fullfill the action
                 await Payment.create({
@@ -78,6 +79,7 @@ exports.verifySignature=async(req,res)=>{
                     message:"Signature verified and course added!"
                 });
             }catch(err){
+                console.log("error from verify payment inner tyr: ", error)
                 return res.json({
                     success:false,
                     message:err.message
@@ -91,6 +93,7 @@ exports.verifySignature=async(req,res)=>{
         }
 
     }catch(err){ 
+        console.log("error from verify payment outer tyr: ", error)
         return res.status(500).json({
             success:false,
             message:"Server Error!"
