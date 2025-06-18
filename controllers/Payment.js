@@ -79,7 +79,7 @@ exports.verifySignature=async(req,res)=>{
                     message:"Signature verified and course added!"
                 });
             }catch(err){
-                console.log("error from verify payment inner tyr: ", error)
+                console.log("error from verify payment inner tyr: ", err)
                 return res.json({
                     success:false,
                     message:err.message
@@ -93,7 +93,7 @@ exports.verifySignature=async(req,res)=>{
         }
 
     }catch(err){ 
-        console.log("error from verify payment outer tyr: ", error)
+        console.log("error from verify payment outer tyr: ", err)
         return res.status(500).json({
             success:false,
             message:"Server Error!"
