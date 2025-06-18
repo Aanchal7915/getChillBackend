@@ -2,6 +2,7 @@ const { instance } = require("../config/razorpay");
 const { default: mongoose } = require("mongoose");
 const Payment = require('../models/Payment')
 const crypto = require("crypto");
+require("dotenv").config();
 
 //capture the payment and initiate the razorpay order
 exports.capturePayment = async (req, res) => {
@@ -55,7 +56,7 @@ exports.capturePayment = async (req, res) => {
 //verifySignature of Razorpay and server
 exports.verifySignature = async (req, res) => {
     try {
-        const webhookSecrete = "12345";
+        const webhookSecrete = process.env.RAZORPAY_WEBHOOK_SECRET;
 
         const signature = req.headers['x-razorpay-signature'];
         const shasum = crypto.createHmac("sha256", webhookSecrete);
