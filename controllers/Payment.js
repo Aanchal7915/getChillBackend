@@ -7,7 +7,7 @@ const crypto = require("crypto");
 exports.capturePayment = async (req, res) => {
     try {
         //get courseId and userId
-        const { phoneNu, name, amount: price } = req.body;
+        const { phoneNu, name, amount: price, address } = req.body;
 
         //order create
         const amount = parseFloat(price);
@@ -17,8 +17,9 @@ exports.capturePayment = async (req, res) => {
             currency: currency,
             receipt: `order_${name}_${Date.now()}`,
             notes: {
-                phoneNu,
-                name
+                contact:phoneNu,
+                name,
+                address
             }
         };
         try {
@@ -86,7 +87,6 @@ exports.verifySignature = async (req, res) => {
                 razorpay_signature: req.body.signature, // if included
 
                 name: payment.notes?.name,
-                phone: payment.notes?.phoneNu,
                 address:payment.notes?.address,
                 email: payment.email,
                 contact: payment.contact,

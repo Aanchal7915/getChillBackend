@@ -11,7 +11,6 @@ const paymentSchema = new mongoose.Schema({
   razorpay_signature: { type: String },
 
   name: { type: String },
-  phone: { type: String },
   address:{type:String},
   email: { type: String },
   contact: { type: String },
