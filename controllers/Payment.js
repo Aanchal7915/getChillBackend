@@ -54,7 +54,8 @@ exports.capturePayment=async(req,res)=>{
 exports.verifySignature=async(req,res)=>{
     try{
         const webhookSecrete="12345";
-        const signature=req.headers('x-razorpay-signature');
+        
+        const signature=req.headers['x-razorpay-signature'];
         const shasum=crypto.createHmac("sha256",webhookSecrete);
         shasum.update(JSON.stringify(req.body));
         const digest=shasum.digest("hex");
@@ -80,9 +81,9 @@ exports.verifySignature=async(req,res)=>{
                 });
             }catch(err){
                 console.log("error from verify payment inner tyr: ", err)
-                return res.json({
+                return res.status(500).json({
                     success:false,
-                    message:err.message
+                    message:"server error!"
                 });
             }
         }else{
