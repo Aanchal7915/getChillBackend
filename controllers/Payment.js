@@ -87,9 +87,9 @@ exports.verifySignature = async (req, res) => {
 
                 name: payment.notes?.name,
                 phone: payment.notes?.phoneNu,
+                address:payment.notes?.address,
                 email: payment.email,
                 contact: payment.contact,
-                service: payment.description,
 
                 method: payment.method,
                 payment_details: paymentDetails,
@@ -111,7 +111,6 @@ exports.verifySignature = async (req, res) => {
                 error_reason: payment.error_reason,
 
                 finalStatus: payment.status,
-                $push: { status_history: statusEntry }
             };
 
 
