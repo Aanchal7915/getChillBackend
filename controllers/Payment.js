@@ -94,7 +94,7 @@ exports.verifySignature = async (req, res) => {
                 method: payment.method,
                 payment_details: paymentDetails,
 
-                amount: payment.amount,
+                amount: payment.amount/100,
                 base_amount: payment.base_amount,
                 currency: payment.currency,
                 fee: payment.fee,
