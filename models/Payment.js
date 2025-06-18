@@ -22,6 +22,7 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   base_amount: { type: Number },
   currency: { type: String, default: "INR" },
+  finalStatus: { type: String, enum: ["authorized", "captured", "failed"], default: "authorized" },
   fee: { type: Number },
   tax: { type: Number },
 
@@ -39,8 +40,7 @@ const paymentSchema = new mongoose.Schema({
   service_name: { type: String },
   service_id: { type: mongoose.Schema.Types.ObjectId, ref: "Service" },
 
-  status_history: [statusSchema],
-  finalStatus: { type: String, enum: ["authorized", "captured", "failed"], default: "authorized" }
+  status_history: [statusSchema]
 }, { timestamps: true });
 
 paymentSchema.index({ razorpay_payment_id: 1 }, { unique: true });

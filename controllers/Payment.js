@@ -89,7 +89,7 @@ exports.verifySignature = async (req, res) => {
                 phone: payment.notes?.phoneNu,
                 email: payment.email,
                 contact: payment.contact,
-                service:payment.description,
+                service: payment.description,
 
                 method: payment.method,
                 payment_details: paymentDetails,
@@ -120,14 +120,18 @@ exports.verifySignature = async (req, res) => {
                 //fullfill the action
                 const saved = await Payment.findOneAndUpdate(
                     { razorpay_payment_id: payment.id },
-                    { $set: updatedData, $setOnInsert: { createdAt: new Date() } },
+                    {
+                        $set: updatedData,
+                        $push: { status_history: statusEntry },
+                        $setOnInsert: { createdAt: new Date() },
+                    },
                     { upsert: true, new: true }
                 );
 
                 return res.status(200).json({
                     success: true,
                     message: "Signature verified and course added!",
-                    data:saved
+                    data: saved
                 });
             } catch (err) {
                 console.log("error from verify payment inner tyr: ", err)
