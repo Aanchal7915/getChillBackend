@@ -1,6 +1,7 @@
 const {instance}= require("../config/razorpay");
 const { default: mongoose } = require("mongoose");
 const Payment=require('../models/Payment')
+const crypto = require("crypto");
 
 //capture the payment and initiate the razorpay order
 exports.capturePayment=async(req,res)=>{
