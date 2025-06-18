@@ -14,7 +14,7 @@ const paymentSchema = new mongoose.Schema({
   phone: { type: String },
   email: { type: String },
   contact: { type: String },
-  service:{type:string},
+  service:{type:String},
 
   method: { type: String, enum: ["upi", "card", "netbanking", "wallet", "emi"] },
   payment_details: { type: mongoose.Schema.Types.Mixed }, // e.g. vpa, card network, bank name
