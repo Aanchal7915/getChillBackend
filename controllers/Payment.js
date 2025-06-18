@@ -15,7 +15,7 @@ exports.capturePayment=async(req,res)=>{
         const options={
             amount:amount*100,
             currency:currency,
-            receipt:Math.random(Date.now()).toString(),
+            receipt: `order_${name}_${Date.now()}`,
             notes:{
                 phoneNu,
                 name
