@@ -5,7 +5,6 @@ exports.getAllBookings = async (req, res) => {
   try {
     // Query parameters
     let { paymentStatus, serviceStatus, page = 1, limit = 10 } = req.query;
-    console.log("query: ", req.query)
     paymentStatus=paymentStatus?.toLowerCase();
     serviceStatus=serviceStatus?.toLowerCase();
     console.log(serviceStatus, paymentStatus)
@@ -17,7 +16,6 @@ exports.getAllBookings = async (req, res) => {
 
     // Pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    console.log("filter: ", filter)
     // Fetch filtered and paginated bookings
     const bookings = await Payment.find(filter)
       .skip(skip)
@@ -26,7 +24,6 @@ exports.getAllBookings = async (req, res) => {
 
     // Get total count for pagination info
     const total = await Payment.countDocuments(filter);
-    // console.log("dd", bookings)
     res.json({
       success: true,
       data: bookings,
@@ -38,7 +35,6 @@ exports.getAllBookings = async (req, res) => {
       }
     });
   } catch (err) {
-    console.log("error:",err)
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

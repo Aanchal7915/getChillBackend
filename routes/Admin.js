@@ -7,5 +7,5 @@ router.post("/login", login);
 
 // Only admin can access this route
 router.get("/admin-data", authN, authZ("admin"), getAllBookings);
-router.put("/update-status", /*authN, authZ("admin"),*/ updateServiceStatus);
+router.post("/update-status", updateServiceStatus);
 module.exports = router;
