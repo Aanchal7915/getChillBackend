@@ -14,6 +14,7 @@ const paymentSchema = new mongoose.Schema({
   address:{type:String},
   email: { type: String },
   contact: { type: String },
+  serviceStatus: { type: Boolean, default: false },
 
   method: { type: String, enum: ["upi", "card", "netbanking", "wallet", "emi"] },
   payment_details: { type: mongoose.Schema.Types.Mixed }, // e.g. vpa, card network, bank name
@@ -21,7 +22,7 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   base_amount: { type: Number },
   currency: { type: String, default: "INR" },
-  finalStatus: { type: String, enum: ["authorized", "captured", "failed"], default: "authorized" },
+  paymentStatus: { type: String, enum: ["authorized", "captured", "failed"], default: "authorized" },
   fee: { type: Number },
   tax: { type: Number },
 

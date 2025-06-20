@@ -111,7 +111,7 @@ exports.verifySignature = async (req, res) => {
                 error_description: payment.error_description,
                 error_reason: payment.error_reason,
 
-                finalStatus: payment.status,
+                paymentStatus: payment.status,
             };
 
 
