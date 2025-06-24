@@ -18,7 +18,7 @@ exports.capturePayment = async (req, res) => {
             currency: currency,
             receipt: `order_${name}_${Date.now()}`,
             notes: {
-                contact:phoneNu,
+                contact: phoneNu,
                 name,
                 address
             }
@@ -65,87 +65,85 @@ exports.verifySignature = async (req, res) => {
         shasum.update(JSON.stringify(req.body));
         const digest = shasum.digest("hex");
         console.log("digest: ", digest, signature);
+        // if (signature === digest) {
+        console.log("payment is Authorised!");
+
         const payment = req.body.payload.payment.entity;
         console.log("payment: ", payment)
-        // if (signature === digest) {
-            console.log("payment is Authorised!");
 
-            const payment = req.body.payload.payment.entity;
-            console.log("payment: ", payment)
+        const statusEntry = {
+            status: payment.status,
+            at: new Date(payment.created_at * 1000)
+        };
 
-            const statusEntry = {
-                status: payment.status,
-                at: new Date(payment.created_at * 1000)
-            };
+        const paymentDetails = {
+            upi: payment.vpa,
+            bank: payment.bank,
+            wallet: payment.wallet,
+            card_id: payment.card_id,
+            ...payment.upi,
+            ...payment.acquirer_data
+        };
 
-            const paymentDetails = {
-                upi: payment.vpa,
-                bank: payment.bank,
-                wallet: payment.wallet,
-                card_id: payment.card_id,
-                ...payment.upi,
-                ...payment.acquirer_data
-            };
+        const updatedData = {
+            razorpay_payment_id: payment.id,
+            razorpay_order_id: payment.order_id,
+            razorpay_signature: req.body.signature, // if included
 
-            const updatedData = {
-                razorpay_payment_id: payment.id,
-                razorpay_order_id: payment.order_id,
-                razorpay_signature: req.body.signature, // if included
+            name: payment.notes?.name,
+            address: payment.notes?.address,
+            email: payment.email,
+            contact: payment.contact,
+            location: payment.notes?.location,
 
-                name: payment.notes?.name,
-                address:payment.notes?.address,
-                email: payment.email,
-                contact: payment.contact,
-                location:payment.notes?.location,
+            method: payment.method,
+            payment_details: paymentDetails,
 
-                method: payment.method,
-                payment_details: paymentDetails,
+            amount: payment.amount / 100,
+            base_amount: payment.base_amount,
+            currency: payment.currency,
+            fee: payment.fee,
+            tax: payment.tax,
 
-                amount: payment.amount/100,
-                base_amount: payment.base_amount,
-                currency: payment.currency,
-                fee: payment.fee,
-                tax: payment.tax,
+            description: payment.description,
+            captured: payment.captured,
+            international: payment.international,
+            reward: payment.reward,
+            acquirer_data: payment.acquirer_data,
 
-                description: payment.description,
-                captured: payment.captured,
-                international: payment.international,
-                reward: payment.reward,
-                acquirer_data: payment.acquirer_data,
+            error_code: payment.error_code,
+            error_description: payment.error_description,
+            error_reason: payment.error_reason,
 
-                error_code: payment.error_code,
-                error_description: payment.error_description,
-                error_reason: payment.error_reason,
-
-                paymentStatus: payment.status,
-            };
+            paymentStatus: payment.status,
+        };
 
 
 
-            try {
-                //fullfill the action
-                const saved = await Payment.findOneAndUpdate(
-                    { razorpay_payment_id: payment.id },
-                    {
-                        $set: updatedData,
-                        $push: { status_history: statusEntry },
-                        $setOnInsert: { createdAt: new Date() },
-                    },
-                    { upsert: true, new: true }
-                );
+        try {
+            //fullfill the action
+            const saved = await Payment.findOneAndUpdate(
+                { razorpay_payment_id: payment.id },
+                {
+                    $set: updatedData,
+                    $push: { status_history: statusEntry },
+                    $setOnInsert: { createdAt: new Date() },
+                },
+                { upsert: true, new: true }
+            );
 
-                return res.status(200).json({
-                    success: true,
-                    message: "Signature verified and course added!",
-                    data: saved
-                });
-            } catch (err) {
-                console.log("error from verify payment inner tyr: ", err)
-                return res.status(500).json({
-                    success: false,
-                    message: "server error!"
-                });
-            }
+            return res.status(200).json({
+                success: true,
+                message: "Signature verified and course added!",
+                data: saved
+            });
+        } catch (err) {
+            console.log("error from verify payment inner tyr: ", err)
+            return res.status(500).json({
+                success: false,
+                message: "server error!"
+            });
+        }
         // } else {
         //     console.log("payment is not authorised!");
         //     return res.status(400).json({
