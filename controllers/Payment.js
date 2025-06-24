@@ -63,7 +63,7 @@ exports.verifySignature = async (req, res) => {
         const shasum = crypto.createHmac("sha256", webhookSecrete);
         shasum.update(JSON.stringify(req.body));
         const digest = shasum.digest("hex");
-        consoel.log("digest: ", digest, signature);
+        console.log("digest: ", digest, signature);
         if (signature === digest) {
             console.log("payment is Authorised!");
 
