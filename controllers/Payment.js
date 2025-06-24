@@ -56,6 +56,7 @@ exports.capturePayment = async (req, res) => {
 //verifySignature of Razorpay and server
 exports.verifySignature = async (req, res) => {
     try {
+        console.log("verify payment called!");
         const webhookSecrete = process.env.RAZORPAY_WEBHOOK_SECRET;
 
         const signature = req.headers['x-razorpay-signature'];
@@ -149,7 +150,7 @@ exports.verifySignature = async (req, res) => {
         }
 
     } catch (err) {
-        console.log("error from verify payment outer tyr: ", err)
+        console.log("error from verify payment outer try: ", err)
         return res.status(500).json({
             success: false,
             message: "Server Error!"
