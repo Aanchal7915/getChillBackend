@@ -65,6 +65,8 @@ exports.verifySignature = async (req, res) => {
         shasum.update(JSON.stringify(req.body));
         const digest = shasum.digest("hex");
         console.log("digest: ", digest, signature);
+        const payment = req.body.payload.payment.entity;
+        console.log("payment: ", payment)
         if (signature === digest) {
             console.log("payment is Authorised!");
 
