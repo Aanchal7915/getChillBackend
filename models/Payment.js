@@ -14,6 +14,7 @@ const paymentSchema = new mongoose.Schema({
   address:{type:String},
   email: { type: String },
   contact: { type: String },
+  location: {type:string},
   serviceStatus: { type: Boolean, default: false },
 
   method: { type: String, enum: ["upi", "card", "netbanking", "wallet", "emi"] },
