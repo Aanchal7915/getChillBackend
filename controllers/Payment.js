@@ -58,6 +58,7 @@ exports.verifySignature = async (req, res) => {
     try {
         console.log("verify payment called!");
         const webhookSecrete = process.env.RAZORPAY_WEBHOOK_SECRET;
+        console.log("webhookSecrete: ", webhookSecrete);
 
         const signature = req.headers['x-razorpay-signature'];
         const shasum = crypto.createHmac("sha256", webhookSecrete);
